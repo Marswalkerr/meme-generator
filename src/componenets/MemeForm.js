@@ -1,6 +1,4 @@
-import React from 'react';
-
-export default function MemeForm({ meme, onTextChange, onNewImage, onGenerate }) {
+export default function MemeForm({ meme, onTextChange, onGenerate, onReset }) {
   return (
     <div className="form">
       <div className="inputText">
@@ -21,9 +19,14 @@ export default function MemeForm({ meme, onTextChange, onNewImage, onGenerate })
           onChange={onTextChange}
         />
       </div>
-      <button className="form--button generateBtn" onClick={onGenerate}>
-        Generate Meme
-      </button>
+      <div className="btnContainer">
+        <button className="form--button generateBtn" onClick={onGenerate}>
+          Generate Meme
+        </button>
+        <button className="form--button resetBtn" onClick={onReset}>
+          Reset
+        </button>
+      </div>
     </div>
   );
 }

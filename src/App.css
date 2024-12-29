@@ -53,7 +53,7 @@ main {
   border-radius: 5px;
   border: 1px solid #D5D4D8;
   padding: 10px 10px;
-  width: 300px;
+  width: 320px;
 }
 
 .form--button {
@@ -67,8 +67,19 @@ main {
   padding: 10px 10px;
 }
 
+.btnContainer{
+  display: flex;
+  gap: 20px;
+}
+
 .generateBtn{
-  background: linear-gradient(9090.41deg, #1b97b9, #00bff3);
+  background: linear-gradient(90.41deg, #1b97b9, #00bff3);
+  width: 150px;
+}
+
+.resetBtn{
+  background: linear-gradient(90deg, #313030, #504f4f);
+  width: 150px;
 }
 
 .container{
@@ -97,7 +108,7 @@ main {
 }
 
 .meme--image {
-  width: 400px;
+  width: 450px;
   height: auto;
   object-fit: cover;
   border-radius: 3px;

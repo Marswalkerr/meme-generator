@@ -49,6 +49,14 @@ export default function Meme() {
     }
   };
 
+  const resetMemeText = () => {
+    setMeme(prevMeme => ({
+      ...prevMeme,
+      topText: "",
+      bottomText: ""
+    }));
+  };
+
   const handleDownload = () => {
     const link = document.createElement("a");
     link.download = "meme.png";
@@ -75,6 +83,7 @@ export default function Meme() {
           meme={meme}
           onTextChange={handleChange}
           onGenerate={generateMemeAndShowPopup}
+          onReset={resetMemeText}
         />
 
         <MemePopup
