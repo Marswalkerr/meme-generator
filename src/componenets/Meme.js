@@ -1,57 +1,10 @@
-import React, { useState, useEffect } from "react";
-
-// Utility function moved outside component
-async function fetchMemeImage(url) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = url;
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0);
-      resolve(canvas.toDataURL());
-    };
-  });
-}
-
-// Canvas text drawing utility
-async function drawTextOnCanvas(imageURL, topText, bottomText) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.src = imageURL;
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext("2d");
-      
-      // Draw image
-      ctx.drawImage(img, 0, 0);
-
-      // Configure text style
-      ctx.fillStyle = "white";
-      ctx.font = "36px impact, sans-serif";
-      ctx.textAlign = "center";
-      ctx.lineWidth = 5;
-      ctx.strokeStyle = "black";
-
-      // Draw top text
-      ctx.textBaseline = "top";
-      ctx.strokeText(topText, canvas.width / 2, 10);
-      ctx.fillText(topText, canvas.width / 2, 10);
-
-      // Draw bottom text
-      ctx.textBaseline = "bottom";
-      ctx.strokeText(bottomText, canvas.width / 2, canvas.height - 10);
-      ctx.fillText(bottomText, canvas.width / 2, canvas.height - 10);
-
-      resolve(canvas.toDataURL());
-    };
-  });
-}
+import React, { useState, useEffect } from 'react';
+import MemeForm from './MemeForm';
+import MemeDisplay from './MemeDisplay';
+import MemePopup from './MemePopup';
+import { fetchMemes } from '../services/memeService';
+import { fetchMemeImage } from '../utils/imageUtils';
+import { drawTextOnCanvas } from '../services/canvasService';
 
 export default function Meme() {
   const [meme, setMeme] = useState({
@@ -64,9 +17,7 @@ export default function Meme() {
   const [generatedMemeURL, setGeneratedMemeURL] = useState(null);
 
   useEffect(() => {
-    fetch("https://api.imgflip.com/get_memes")
-      .then((res) => res.json())
-      .then((data) => setAllMemes(data.data.memes));
+    fetchMemes().then(setAllMemes);
   }, []);
 
   const getMemeImage = () => {
@@ -112,54 +63,23 @@ export default function Meme() {
 
   return (
     <main>
-      <div className="form">
-        <div className="inputText">
-          <input
-            type="text"
-            placeholder="Top text"
-            className="form--input"
-            name="topText"
-            value={meme.topText}
-            onChange={handleChange}
-          />
-          <input
-            type="text"
-            placeholder="Bottom text"
-            className="form--input"
-            name="bottomText"
-            value={meme.bottomText}
-            onChange={handleChange}
-          />
-        </div>
-        <button className="form--button" onClick={getMemeImage}>
-          Get a new meme image 🖼
-        </button>
-        <button className="form--button generateBtn" onClick={generateMemeAndShowPopup}>
-          Generate Meme
-        </button>
-      </div>
-
-      <div className="meme-container">
-        <div className="meme">
-          <img src={generatedMemeURL || meme.randomImage} className="meme--image" alt="Meme" />
-          <h2 className="meme--text top">{meme.topText}</h2>
-          <h2 className="meme--text bottom">{meme.bottomText}</h2>
-        </div>
-      </div>
-
-      {showPopup && (
-        <div className="popup">
-          <div className="popup--content">
-            <img src={generatedMemeURL || meme.randomImage} alt="Generated Meme" className="popup--image" />
-            <button className="form--button downloadBtn" onClick={handleDownload}>
-              Download Meme
-            </button>
-            <button className="form--button closeBtn" onClick={handleClosePopup}>
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      <MemeForm
+        meme={meme}
+        onTextChange={handleChange}
+        onNewImage={getMemeImage}
+        onGenerate={generateMemeAndShowPopup}
+      />
+      <MemeDisplay
+        imageUrl={generatedMemeURL || meme.randomImage}
+        topText={meme.topText}
+        bottomText={meme.bottomText}
+      />
+      <MemePopup
+        show={showPopup}
+        imageUrl={generatedMemeURL || meme.randomImage}
+        onDownload={handleDownload}
+        onClose={handleClosePopup}
+      />
     </main>
   );
 }
