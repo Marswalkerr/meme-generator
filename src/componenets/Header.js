@@ -1,5 +1,5 @@
 import React from "react";
-import siteLogo from "../imaegs/logo.png";
+import siteLogo from "../images/logo.png";
 
 export default function Header(){
     return (
