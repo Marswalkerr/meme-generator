@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import MemeForm from './MemeForm';
 import MemeDisplay from './MemeDisplay';
 import MemePopup from './MemePopup';
+import TextCustomization from './TextCustomization';
 import { fetchMemes } from '../services/memeService';
 import { fetchMemeImage } from '../utils/imageUtils';
 import { drawTextOnCanvas } from '../services/canvasService';
@@ -10,7 +11,19 @@ export default function Meme() {
   const [meme, setMeme] = useState({
     topText: "",
     bottomText: "",
-    randomImage: "http://i.imgflip.com/1bij.jpg"
+    randomImage: "http://i.imgflip.com/1bij.jpg",
+    textSettings: {
+      font: "Impact",
+      fontSize: 32,
+      isAllCaps: true,
+      isBold: false,
+      isItalic: false,
+      textStyle: "shadow", // 'shadow', 'outline', or 'none'
+      outlineWidth: 2,
+      textAlign: "center",
+      verticalAlign: "top",
+      opacity: 1
+    }
   });
   const [allMemes, setAllMemes] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
@@ -38,10 +51,25 @@ export default function Meme() {
     }));
   };
 
+  const handleTextSettingsChange = (newSettings) => {
+    setMeme(prevMeme => ({
+      ...prevMeme,
+      textSettings: {
+        ...prevMeme.textSettings,
+        ...newSettings
+      }
+    }));
+  };
+
   const generateMemeAndShowPopup = async () => {
     try {
       const imageURL = await fetchMemeImage(meme.randomImage);
-      const generatedMeme = await drawTextOnCanvas(imageURL, meme.topText, meme.bottomText);
+      const generatedMeme = await drawTextOnCanvas(
+        imageURL, 
+        meme.topText, 
+        meme.bottomText, 
+        meme.textSettings
+      );
       setGeneratedMemeURL(generatedMeme);
       setShowPopup(true);
     } catch (error) {
@@ -49,48 +77,50 @@ export default function Meme() {
     }
   };
 
-  const resetMemeText = () => {
-    setMeme(prevMeme => ({
-      ...prevMeme,
-      topText: "",
-      bottomText: ""
-    }));
-  };
-
-  const handleDownload = () => {
-    const link = document.createElement("a");
-    link.download = "meme.png";
-    link.href = generatedMemeURL || meme.randomImage;
-    link.click();
-  };
-
-  const handleClosePopup = () => {
-    setShowPopup(false);
-    setGeneratedMemeURL(null);
-  };
-
   return (
     <main>
       <div className='container'>
-        <MemeDisplay
-          imageUrl={generatedMemeURL || meme.randomImage}
-          topText={meme.topText}
-          bottomText={meme.bottomText}
-          onNewImage={getMemeImage}
-        />
-
-        <MemeForm
-          meme={meme}
-          onTextChange={handleChange}
-          onGenerate={generateMemeAndShowPopup}
-          onReset={resetMemeText}
-        />
+        <div className="meme-editor">
+          <MemeDisplay
+            imageUrl={generatedMemeURL || meme.randomImage}
+            topText={meme.topText}
+            bottomText={meme.bottomText}
+            textSettings={meme.textSettings}
+            onNewImage={getMemeImage}
+          />
+          
+          <div className="editor-controls">
+            <MemeForm
+              meme={meme}
+              onTextChange={handleChange}
+              onGenerate={generateMemeAndShowPopup}
+              onReset={() => setMeme(prevMeme => ({
+                ...prevMeme,
+                topText: "",
+                bottomText: ""
+              }))}
+            />
+            
+            <TextCustomization
+              settings={meme.textSettings}
+              onSettingsChange={handleTextSettingsChange}
+            />
+          </div>
+        </div>
 
         <MemePopup
           show={showPopup}
           imageUrl={generatedMemeURL || meme.randomImage}
-          onDownload={handleDownload}
-          onClose={handleClosePopup}
+          onDownload={() => {
+            const link = document.createElement("a");
+            link.download = "meme.png";
+            link.href = generatedMemeURL || meme.randomImage;
+            link.click();
+          }}
+          onClose={() => {
+            setShowPopup(false);
+            setGeneratedMemeURL(null);
+          }}
         />
       </div>
     </main>
