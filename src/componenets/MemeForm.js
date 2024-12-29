@@ -21,9 +21,6 @@ export default function MemeForm({ meme, onTextChange, onNewImage, onGenerate })
           onChange={onTextChange}
         />
       </div>
-      <button className="form--button" onClick={onNewImage}>
-        Get a new meme image 🖼
-      </button>
       <button className="form--button generateBtn" onClick={onGenerate}>
         Generate Meme
       </button>

@@ -37,10 +37,12 @@ main {
   align-items: center;
   gap: 17px;
   margin-bottom: 17px;
+  margin: 0 30px;
 }
 
 .inputText{
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 20px;
@@ -61,8 +63,30 @@ main {
   color: white;
   border: none;
   cursor: pointer;
-  width: 400px;
+  width: 300px;
   padding: 10px 10px;
+}
+
+.generateBtn{
+  background: linear-gradient(9090.41deg, #1b97b9, #00bff3);
+}
+
+.container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+
+.meme-container{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.newMemeBtn{
+  margin-top: 20px;
 }
 
 .meme {
@@ -73,9 +97,12 @@ main {
 }
 
 .meme--image {
-  max-width: 100%;
+  width: 400px;
+  height: auto;
+  object-fit: cover;
   border-radius: 3px;
-  max-height: 400px; /* Adjust the height as needed */
+  border: 1px solid black;
+  /* max-height: 400px; */
 }
 
 .meme--text {

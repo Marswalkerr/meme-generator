@@ -63,23 +63,27 @@ export default function Meme() {
 
   return (
     <main>
-      <MemeForm
-        meme={meme}
-        onTextChange={handleChange}
-        onNewImage={getMemeImage}
-        onGenerate={generateMemeAndShowPopup}
-      />
-      <MemeDisplay
-        imageUrl={generatedMemeURL || meme.randomImage}
-        topText={meme.topText}
-        bottomText={meme.bottomText}
-      />
-      <MemePopup
-        show={showPopup}
-        imageUrl={generatedMemeURL || meme.randomImage}
-        onDownload={handleDownload}
-        onClose={handleClosePopup}
-      />
+      <div className='container'>
+        <MemeDisplay
+          imageUrl={generatedMemeURL || meme.randomImage}
+          topText={meme.topText}
+          bottomText={meme.bottomText}
+          onNewImage={getMemeImage}
+        />
+
+        <MemeForm
+          meme={meme}
+          onTextChange={handleChange}
+          onGenerate={generateMemeAndShowPopup}
+        />
+
+        <MemePopup
+          show={showPopup}
+          imageUrl={generatedMemeURL || meme.randomImage}
+          onDownload={handleDownload}
+          onClose={handleClosePopup}
+        />
+      </div>
     </main>
   );
 }
