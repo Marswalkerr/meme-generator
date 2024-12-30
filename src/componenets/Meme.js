@@ -18,8 +18,8 @@ export default function Meme() {
       isAllCaps: true,
       isBold: false,
       isItalic: false,
-      textStyle: "shadow", // 'shadow', 'outline', or 'none'
-      outlineWidth: 5,
+      textStyle: "outline", // 'shadow', 'outline', or 'none'
+      outlineWidth: 3,
       textAlign: "center",
       verticalAlign: "top",
       opacity: 1

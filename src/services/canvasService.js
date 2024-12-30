@@ -38,30 +38,27 @@ export async function drawTextOnCanvas(imageURL, topText, bottomText, textSettin
           ctx.fillStyle = 'white';
           ctx.fillText(text, x, y);
         } else if (textSettings.textStyle === 'shadow') {
-          // First draw the shadow
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-          const shadowOffset = Math.max(2, scaledOutlineWidth);
-          
-          // Draw multiple shadow layers for better visibility
-          const shadowPositions = [
-            [shadowOffset, shadowOffset],
-            [-shadowOffset, shadowOffset],
-            [shadowOffset, -shadowOffset],
-            [-shadowOffset, -shadowOffset]
-          ];
-          
-          shadowPositions.forEach(([offsetX, offsetY]) => {
-            ctx.fillText(text, x + offsetX, y + offsetY);
-          });
-
-          // Then draw the main text
+          // Set shadow properties for the blur effect
+          const shadowBlur = 4; // Increase this value for more blurriness
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+          ctx.shadowBlur = shadowBlur;
+          ctx.shadowOffsetX = scaledOutlineWidth;
+          ctx.shadowOffsetY = scaledOutlineWidth;
+      
+          // Draw the main text with the shadow
           ctx.fillStyle = 'white';
           ctx.fillText(text, x, y);
+      
+          // Reset shadow properties for subsequent drawings
+          ctx.shadowColor = 'transparent';
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetX = 0;
+          ctx.shadowOffsetY = 0;
         } else {
           ctx.fillStyle = 'white';
           ctx.fillText(text, x, y);
         }
-      };
+      };      
 
       const getXPosition = () => {
         switch(textSettings.textAlign) {
