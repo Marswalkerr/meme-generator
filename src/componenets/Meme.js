@@ -19,7 +19,7 @@ export default function Meme() {
       isBold: false,
       isItalic: false,
       textStyle: "shadow", // 'shadow', 'outline', or 'none'
-      outlineWidth: 2,
+      outlineWidth: 5,
       textAlign: "center",
       verticalAlign: "top",
       opacity: 1

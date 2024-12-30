@@ -1,4 +1,3 @@
-// TextCustomization.js
 import React from 'react';
 
 const TextCustomization = ({ settings, onSettingsChange }) => {
@@ -84,7 +83,7 @@ const TextCustomization = ({ settings, onSettingsChange }) => {
       </div>
 
       <div className="customization-group">
-        <label>Outline Width</label>
+        <label>Shadow/Outline Width</label>
         <input
           type="number"
           value={settings.outlineWidth}

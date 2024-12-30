@@ -1,32 +1,12 @@
-// MemeDisplay.js
 import React from 'react';
 
 export default function MemeDisplay({ imageUrl, topText, bottomText, textSettings, onNewImage }) {
   const getTextStyle = (position) => {
+    // Match canvas shadow/outline scaling
+    const outlineScale = Math.max(textSettings.fontSize / 32, 1);
+    const scaledOutlineWidth = Math.ceil(textSettings.outlineWidth * outlineScale);
+    
     const baseStyle = {
-      fontFamily: textSettings.font,
-      fontSize: `${textSettings.fontSize}px`,
-      fontWeight: textSettings.isBold ? 'bold' : 'normal',
-      fontStyle: textSettings.isItalic ? 'italic' : 'normal',
-      textAlign: textSettings.textAlign,
-      opacity: textSettings.opacity,
-      textTransform: textSettings.isAllCaps ? 'uppercase' : 'none'
-    };
-
-    // Add text effects based on textStyle
-    if (textSettings.textStyle === 'shadow') {
-      baseStyle.textShadow = `
-        -${textSettings.outlineWidth}px -${textSettings.outlineWidth}px 0 #000,
-        ${textSettings.outlineWidth}px -${textSettings.outlineWidth}px 0 #000,
-        -${textSettings.outlineWidth}px ${textSettings.outlineWidth}px 0 #000,
-        ${textSettings.outlineWidth}px ${textSettings.outlineWidth}px 0 #000
-      `;
-    } else if (textSettings.textStyle === 'outline') {
-      baseStyle.WebkitTextStroke = `${textSettings.outlineWidth}px black`;
-    }
-
-    return {
-      ...baseStyle,
       position: 'absolute',
       width: '80%',
       left: '50%',
@@ -34,8 +14,43 @@ export default function MemeDisplay({ imageUrl, topText, bottomText, textSetting
       margin: '15px 0',
       padding: '0 5px',
       color: 'white',
+      fontFamily: textSettings.font,
+      fontSize: `${textSettings.fontSize}px`,
+      fontStyle: textSettings.isItalic ? 'italic' : 'normal',
+      textAlign: textSettings.textAlign,
+      opacity: textSettings.opacity,
+      textTransform: textSettings.isAllCaps ? 'uppercase' : 'none',
+      fontWeight: textSettings.isBold ? '700' : '400',
       ...(position === 'top' ? { top: 0 } : { bottom: 0 })
     };
+
+    if (textSettings.textStyle === 'shadow') {
+      const shadowBlur = 4;
+      const shadowColor = 'rgba(0, 0, 0, 0.7)';
+      const shadowSize = Math.max(2, scaledOutlineWidth);
+      
+      baseStyle.textShadow = `
+        ${shadowSize}px ${shadowSize}px ${shadowBlur}px ${shadowColor},
+        ${-shadowSize}px ${shadowSize}px ${shadowBlur}px ${shadowColor},
+        ${shadowSize}px ${-shadowSize}px ${shadowBlur}px ${shadowColor},
+        ${-shadowSize}px ${-shadowSize}px ${shadowBlur}px ${shadowColor}
+      `;
+    } else if (textSettings.textStyle === 'outline') {
+      const outlineShadows = [];
+      
+      for (let x = -scaledOutlineWidth; x <= scaledOutlineWidth; x++) {
+        for (let y = -scaledOutlineWidth; y <= scaledOutlineWidth; y++) {
+          if (x === 0 && y === 0) continue;
+          if (Math.abs(x) === scaledOutlineWidth || Math.abs(y) === scaledOutlineWidth) {
+            outlineShadows.push(`${x}px ${y}px 0 #000`);
+          }
+        }
+      }
+      
+      baseStyle.textShadow = outlineShadows.join(', ');
+    }
+
+    return baseStyle;
   };
 
   return (

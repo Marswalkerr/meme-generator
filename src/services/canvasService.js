@@ -1,4 +1,3 @@
-// canvasService.js
 export async function drawTextOnCanvas(imageURL, topText, bottomText, textSettings) {
   return new Promise((resolve) => {
     const img = new Image();
@@ -12,60 +11,62 @@ export async function drawTextOnCanvas(imageURL, topText, bottomText, textSettin
       // Draw image
       ctx.drawImage(img, 0, 0);
 
+      // Calculate padding based on image dimensions
+      const paddingX = Math.max(20, canvas.width * 0.05);
+      const paddingY = Math.max(20, canvas.height * 0.05);
+
+      // Scale outline width based on font size
+      const outlineScale = Math.max(textSettings.fontSize / 32, 2);
+      const scaledOutlineWidth = textSettings.outlineWidth * outlineScale;
+
       // Configure text style
-      const fontStyle = `${textSettings.isItalic ? 'italic ' : ''}${
-        textSettings.isBold ? 'bold ' : ''
-      }${textSettings.fontSize}px ${textSettings.font}`;
+      const fontWeight = textSettings.isBold ? 'bold' : 'normal';
+      const fontStyle = `${textSettings.isItalic ? 'italic' : ''} ${fontWeight} ${textSettings.fontSize}px ${textSettings.font}`;
       
-      ctx.font = fontStyle;
+      ctx.font = fontStyle.trim();
       ctx.textAlign = textSettings.textAlign;
       ctx.globalAlpha = textSettings.opacity;
 
-      // Function to process text based on settings
       const processText = (text) => textSettings.isAllCaps ? text.toUpperCase() : text;
 
-      // Function to draw text with the selected style
       const drawStyledText = (text, x, y) => {
         if (textSettings.textStyle === 'outline') {
           ctx.strokeStyle = 'black';
-          ctx.lineWidth = textSettings.outlineWidth;
+          ctx.lineWidth = scaledOutlineWidth;
           ctx.lineJoin = 'round';
           ctx.strokeText(text, x, y);
           ctx.fillStyle = 'white';
           ctx.fillText(text, x, y);
         } else if (textSettings.textStyle === 'shadow') {
-          // Draw shadow layers
-          ctx.fillStyle = 'black';
-          const shadowOffset = textSettings.outlineWidth;
+          // First draw the shadow
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+          const shadowOffset = Math.max(2, scaledOutlineWidth);
           
-          // Draw shadow in all directions
-          [
-            [-1, -1], [0, -1], [1, -1],
-            [-1, 0],           [1, 0],
-            [-1, 1],  [0, 1],  [1, 1]
-          ].forEach(([offsetX, offsetY]) => {
-            ctx.fillText(
-              text, 
-              x + (offsetX * shadowOffset), 
-              y + (offsetY * shadowOffset)
-            );
+          // Draw multiple shadow layers for better visibility
+          const shadowPositions = [
+            [shadowOffset, shadowOffset],
+            [-shadowOffset, shadowOffset],
+            [shadowOffset, -shadowOffset],
+            [-shadowOffset, -shadowOffset]
+          ];
+          
+          shadowPositions.forEach(([offsetX, offsetY]) => {
+            ctx.fillText(text, x + offsetX, y + offsetY);
           });
-          
-          // Draw main text
+
+          // Then draw the main text
           ctx.fillStyle = 'white';
           ctx.fillText(text, x, y);
         } else {
-          // No effect, just draw the text
           ctx.fillStyle = 'white';
           ctx.fillText(text, x, y);
         }
       };
 
-      // Calculate x position based on text alignment
       const getXPosition = () => {
         switch(textSettings.textAlign) {
-          case 'left': return textSettings.outlineWidth * 2;
-          case 'right': return canvas.width - (textSettings.outlineWidth * 2);
+          case 'left': return paddingX;
+          case 'right': return canvas.width - paddingX;
           default: return canvas.width / 2;
         }
       };
@@ -73,7 +74,7 @@ export async function drawTextOnCanvas(imageURL, topText, bottomText, textSettin
       // Draw top text
       const topProcessed = processText(topText);
       ctx.textBaseline = 'top';
-      drawStyledText(topProcessed, getXPosition(), textSettings.outlineWidth * 2);
+      drawStyledText(topProcessed, getXPosition(), paddingY);
 
       // Draw bottom text
       const bottomProcessed = processText(bottomText);
@@ -81,7 +82,7 @@ export async function drawTextOnCanvas(imageURL, topText, bottomText, textSettin
       drawStyledText(
         bottomProcessed, 
         getXPosition(), 
-        canvas.height - (textSettings.outlineWidth * 2)
+        canvas.height - paddingY
       );
 
       resolve(canvas.toDataURL());
