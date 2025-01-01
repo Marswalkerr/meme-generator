@@ -33,6 +33,15 @@ export default function Meme() {
     fetchMemes().then(setAllMemes);
   }, []);
 
+  const handleImageSelection = (url) => {
+    setMeme((prevMeme) => ({
+      ...prevMeme,
+      randomImage: url,
+      topText: "",
+      bottomText: "",
+    }));
+  };
+
   const getMemeImage = () => {
     const randomNumber = Math.floor(Math.random() * allMemes.length);
     setMeme(prevMeme => ({
@@ -90,6 +99,17 @@ export default function Meme() {
           />
           
           <div className="editor-controls">
+          <div className="meme-gallery">
+            {allMemes.map((memeItem) => (
+              <img
+                key={memeItem.id}
+                src={memeItem.url}
+                alt={memeItem.name}
+                className="gallery-image"
+                onClick={() => handleImageSelection(memeItem.url)}
+              />
+            ))}
+          </div>
             <MemeForm
               meme={meme}
               onTextChange={handleChange}
@@ -100,12 +120,11 @@ export default function Meme() {
                 bottomText: ""
               }))}
             />
-            
-            <TextCustomization
+          </div>
+          <TextCustomization
               settings={meme.textSettings}
               onSettingsChange={handleTextSettingsChange}
             />
-          </div>
         </div>
 
         <MemePopup
