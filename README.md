@@ -1,4 +1,4 @@
-# Meme Generator 🎨
+# Meme Generator
 
 A powerful and flexible React-based meme generator that allows users to create custom memes with advanced text customization options. Caption the meme templates and generate your custom memes.
 
