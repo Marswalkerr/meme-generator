@@ -1,11 +1,10 @@
 import './App.css';
-import Header from "./componenets/Header"
+import Header from "./componenets/Header";
 import Meme from './componenets/Meme';
 
 function App() {
-
   return (
-    <div className="App">
+    <div className="app-shell">
       <Header />
       <Meme />
     </div>

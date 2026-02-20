@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import MemeForm from './MemeForm';
 import MemeDisplay from './MemeDisplay';
 import MemePopup from './MemePopup';
 import TextCustomization from './TextCustomization';
@@ -14,134 +13,159 @@ export default function Meme() {
     randomImage: "http://i.imgflip.com/1bij.jpg",
     textSettings: {
       font: "Impact",
-      fontSize: 32,
+      fontSize: 36,
       isAllCaps: true,
       isBold: false,
       isItalic: false,
-      textStyle: "outline", // 'shadow', 'outline', or 'none'
+      textStyle: "outline",
       outlineWidth: 3,
       textAlign: "center",
-      verticalAlign: "top",
       opacity: 1
     }
   });
   const [allMemes, setAllMemes] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [generatedMemeURL, setGeneratedMemeURL] = useState(null);
+  const [selectedUrl, setSelectedUrl] = useState(null);
 
-  useEffect(() => {
-    fetchMemes().then(setAllMemes);
-  }, []);
+  useEffect(() => { fetchMemes().then(setAllMemes); }, []);
 
-  const handleImageSelection = (url) => {
-    setMeme((prevMeme) => ({
-      ...prevMeme,
-      randomImage: url,
-      topText: "",
-      bottomText: "",
-    }));
+  const pickImage = (url) => {
+    setSelectedUrl(url);
+    setGeneratedMemeURL(null);
+    setMeme(p => ({ ...p, randomImage: url, topText: "", bottomText: "" }));
   };
 
-  const getMemeImage = () => {
-    const randomNumber = Math.floor(Math.random() * allMemes.length);
-    setMeme(prevMeme => ({
-      ...prevMeme,
-      randomImage: allMemes[randomNumber].url,
-      topText: "",
-      bottomText: ""
-    }));
+  const randomImage = () => {
+    if (!allMemes.length) return;
+    const url = allMemes[Math.floor(Math.random() * allMemes.length)].url;
+    pickImage(url);
   };
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setMeme(prevMeme => ({
-      ...prevMeme,
-      [name]: value
-    }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setMeme(p => ({ ...p, [name]: value }));
   };
 
-  const handleTextSettingsChange = (newSettings) => {
-    setMeme(prevMeme => ({
-      ...prevMeme,
-      textSettings: {
-        ...prevMeme.textSettings,
-        ...newSettings
-      }
-    }));
+  const handleSettings = (s) => {
+    setMeme(p => ({ ...p, textSettings: { ...p.textSettings, ...s } }));
   };
 
-  const generateMemeAndShowPopup = async () => {
+  const generate = async () => {
     try {
       const imageURL = await fetchMemeImage(meme.randomImage);
-      const generatedMeme = await drawTextOnCanvas(
-        imageURL, 
-        meme.topText, 
-        meme.bottomText, 
-        meme.textSettings
-      );
-      setGeneratedMemeURL(generatedMeme);
+      const result = await drawTextOnCanvas(imageURL, meme.topText, meme.bottomText, meme.textSettings);
+      setGeneratedMemeURL(result);
       setShowPopup(true);
-    } catch (error) {
-      console.error("Error generating meme:", error);
+    } catch (err) {
+      console.error("Error generating meme:", err);
     }
   };
 
+  const download = () => {
+    const link = document.createElement("a");
+    link.download = "meme.png";
+    link.href = generatedMemeURL || meme.randomImage;
+    link.click();
+  };
+
   return (
-    <main>
-      <div className='container'>
-        <div className="meme-editor">
-          <MemeDisplay
-            imageUrl={generatedMemeURL || meme.randomImage}
-            topText={meme.topText}
-            bottomText={meme.bottomText}
-            textSettings={meme.textSettings}
-            onNewImage={getMemeImage}
-          />
-          
-          <div className="editor-controls">
-          <div className="meme-gallery">
-            {allMemes.map((memeItem) => (
+    <div className="editor-layout">
+
+      {/* ── LEFT SIDEBAR: Gallery + Text Inputs ── */}
+      <aside className="sidebar">
+        {/* Gallery */}
+        <div className="panel-section">
+          <p className="panel-label">Templates</p>
+          <div className="gallery-grid">
+            {allMemes.map(m => (
               <img
-                key={memeItem.id}
-                src={memeItem.url}
-                alt={memeItem.name}
-                className="gallery-image"
-                onClick={() => handleImageSelection(memeItem.url)}
+                key={m.id}
+                src={m.url}
+                alt={m.name}
+                className={`gallery-thumb${selectedUrl === m.url ? ' active' : ''}`}
+                onClick={() => pickImage(m.url)}
               />
             ))}
           </div>
-            <MemeForm
-              meme={meme}
-              onTextChange={handleChange}
-              onGenerate={generateMemeAndShowPopup}
-              onReset={() => setMeme(prevMeme => ({
-                ...prevMeme,
-                topText: "",
-                bottomText: ""
-              }))}
-            />
-          </div>
-          <TextCustomization
-              settings={meme.textSettings}
-              onSettingsChange={handleTextSettingsChange}
-            />
+          <button className="btn btn-random" style={{ marginTop: 10 }} onClick={randomImage}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+              <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
+            </svg>
+            Random Template
+          </button>
         </div>
 
-        <MemePopup
-          show={showPopup}
-          imageUrl={generatedMemeURL || meme.randomImage}
-          onDownload={() => {
-            const link = document.createElement("a");
-            link.download = "meme.png";
-            link.href = generatedMemeURL || meme.randomImage;
-            link.click();
-          }}
-          onClose={() => {
-            setShowPopup(false);
-            setGeneratedMemeURL(null);
-          }}
+        {/* Text Inputs */}
+        <div className="panel-section">
+          <p className="panel-label">Caption</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div className="field">
+              <label className="field-label">Top Text</label>
+              <input
+                className="text-input"
+                type="text"
+                name="topText"
+                placeholder="Enter top text…"
+                value={meme.topText}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="field">
+              <label className="field-label">Bottom Text</label>
+              <input
+                className="text-input"
+                type="text"
+                name="bottomText"
+                placeholder="Enter bottom text…"
+                value={meme.bottomText}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Generate / Reset */}
+        <div className="panel-section">
+          <button className="btn btn-green" onClick={generate}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Generate &amp; Preview
+          </button>
+          <div className="btn-row" style={{ marginTop: 8 }}>
+            <button className="btn btn-ghost" style={{ flex: 1 }}
+              onClick={() => setMeme(p => ({ ...p, topText: "", bottomText: "" }))}>
+              Clear Text
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* ── CENTER: Canvas Preview ── */}
+      <MemeDisplay
+        imageUrl={meme.randomImage}
+        topText={meme.topText}
+        bottomText={meme.bottomText}
+        textSettings={meme.textSettings}
+      />
+
+      {/* ── RIGHT SIDEBAR: Text Customization ── */}
+      <aside className="sidebar-right">
+        <TextCustomization
+          settings={meme.textSettings}
+          onSettingsChange={handleSettings}
         />
-      </div>
-    </main>
+      </aside>
+
+      {/* ── POPUP ── */}
+      <MemePopup
+        show={showPopup}
+        imageUrl={generatedMemeURL || meme.randomImage}
+        onDownload={download}
+        onClose={() => { setShowPopup(false); setGeneratedMemeURL(null); }}
+      />
+    </div>
   );
 }

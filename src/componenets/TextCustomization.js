@@ -1,133 +1,126 @@
 import React from 'react';
 
 const TextCustomization = ({ settings, onSettingsChange }) => {
-  const handleChange = (name, value) => {
-    onSettingsChange({ [name]: value });
-  };
+  const set = (k, v) => onSettingsChange({ [k]: v });
 
   return (
-    <div className="text-customization">
-      <div className="customization-group">
-        <label>Font</label>
-        <select 
+    <>
+      {/* Font */}
+      <div className="panel-section">
+        <p className="panel-label">Font</p>
+        <select
+          className="styled-select"
           value={settings.font}
-          onChange={(e) => handleChange('font', e.target.value)}
+          onChange={e => set('font', e.target.value)}
         >
           <option value="Impact">Impact</option>
           <option value="Arial">Arial</option>
-          <option value="Comic Sans MS">Comic Sans MS</option>
+          <option value="Comic Sans MS">Comic Sans</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Verdana">Verdana</option>
+          <option value="Courier New">Courier New</option>
         </select>
       </div>
 
-      <div className="customization-group">
-        <label>
-          <input
-            type="checkbox"
-            checked={settings.isAllCaps}
-            onChange={(e) => handleChange('isAllCaps', e.target.checked)}
+      {/* Size */}
+      <div className="panel-section">
+        <p className="panel-label">Font Size</p>
+        <div className="slider-wrap">
+          <input type="range" min="12" max="72"
+            value={settings.fontSize}
+            onChange={e => set('fontSize', +e.target.value)}
           />
-          ALL CAPS
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={settings.isBold}
-            onChange={(e) => handleChange('isBold', e.target.checked)}
-          />
-          Bold
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={settings.isItalic}
-            onChange={(e) => handleChange('isItalic', e.target.checked)}
-          />
-          Italic
-        </label>
-      </div>
-
-      <div className="customization-group">
-        <label>Style</label>
-        <div className="radio-group">
-          <label>
-            <input
-              type="radio"
-              name="textStyle"
-              value="shadow"
-              checked={settings.textStyle === 'shadow'}
-              onChange={(e) => handleChange('textStyle', e.target.value)}
-            />
-            Shadow
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="textStyle"
-              value="outline"
-              checked={settings.textStyle === 'outline'}
-              onChange={(e) => handleChange('textStyle', e.target.value)}
-            />
-            Outline
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="textStyle"
-              value="none"
-              checked={settings.textStyle === 'none'}
-              onChange={(e) => handleChange('textStyle', e.target.value)}
-            />
-            None
-          </label>
+          <span className="slider-val">{settings.fontSize}px</span>
         </div>
       </div>
 
-      <div className="customization-group">
-        <label>Shadow/Outline Width</label>
-        <input
-          type="number"
-          value={settings.outlineWidth}
-          onChange={(e) => handleChange('outlineWidth', parseInt(e.target.value))}
-          min="1"
-          max="10"
-        />
+      {/* Format */}
+      <div className="panel-section">
+        <p className="panel-label">Format</p>
+        <div className="chip-row">
+          {[
+            { key: 'isAllCaps', label: 'CAPS' },
+            { key: 'isBold',    label: 'Bold' },
+            { key: 'isItalic',  label: 'Italic' },
+          ].map(({ key, label }) => (
+            <label key={key} className="chip-label">
+              <input
+                type="checkbox"
+                checked={settings[key]}
+                onChange={e => set(key, e.target.checked)}
+              />
+              {label}
+            </label>
+          ))}
+        </div>
       </div>
 
-      <div className="customization-group">
-        <label>Font Size</label>
-        <input
-          type="number"
-          value={settings.fontSize}
-          onChange={(e) => handleChange('fontSize', parseInt(e.target.value))}
-          min="12"
-          max="72"
-        />
+      {/* Text Effect */}
+      <div className="panel-section">
+        <p className="panel-label">Text Effect</p>
+        <div className="seg-ctrl">
+          {['outline', 'shadow', 'none'].map(v => (
+            <label key={v} className="seg-label">
+              <input
+                type="radio"
+                name="textStyle"
+                value={v}
+                checked={settings.textStyle === v}
+                onChange={e => set('textStyle', e.target.value)}
+              />
+              {v.charAt(0).toUpperCase() + v.slice(1)}
+            </label>
+          ))}
+        </div>
       </div>
 
-      <div className="customization-group">
-        <label>Text Align</label>
-        <select 
-          value={settings.textAlign}
-          onChange={(e) => handleChange('textAlign', e.target.value)}
-        >
-          <option value="left">Left</option>
-          <option value="center">Center</option>
-          <option value="right">Right</option>
-        </select>
+      {/* Effect Width */}
+      <div className="panel-section">
+        <p className="panel-label">Effect Strength</p>
+        <div className="slider-wrap">
+          <input type="range" min="1" max="10"
+            value={settings.outlineWidth}
+            onChange={e => set('outlineWidth', +e.target.value)}
+          />
+          <span className="slider-val">{settings.outlineWidth}</span>
+        </div>
       </div>
 
-      <div className="customization-group">
-        <label>Opacity</label>
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.1"
-          value={settings.opacity}
-          onChange={(e) => handleChange('opacity', parseFloat(e.target.value))}
-        />
+      {/* Alignment */}
+      <div className="panel-section">
+        <p className="panel-label">Alignment</p>
+        <div className="seg-ctrl">
+          {[
+            { v: 'left',   icon: '⬅' },
+            { v: 'center', icon: '↔' },
+            { v: 'right',  icon: '➡' },
+          ].map(({ v, icon }) => (
+            <label key={v} className="seg-label">
+              <input
+                type="radio"
+                name="textAlign"
+                value={v}
+                checked={settings.textAlign === v}
+                onChange={e => set('textAlign', e.target.value)}
+              />
+              {icon}
+            </label>
+          ))}
+        </div>
       </div>
-    </div>
+
+      {/* Opacity */}
+      <div className="panel-section">
+        <p className="panel-label">Opacity</p>
+        <div className="slider-wrap">
+          <input type="range" min="0" max="1" step="0.05"
+            value={settings.opacity}
+            onChange={e => set('opacity', +e.target.value)}
+          />
+          <span className="slider-val">{Math.round(settings.opacity * 100)}%</span>
+        </div>
+      </div>
+    </>
   );
 };
 

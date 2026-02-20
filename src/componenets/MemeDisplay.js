@@ -1,18 +1,16 @@
 import React from 'react';
 
-export default function MemeDisplay({ imageUrl, topText, bottomText, textSettings, onNewImage }) {
+export default function MemeDisplay({ imageUrl, topText, bottomText, textSettings }) {
   const getTextStyle = (position) => {
-    // Match canvas shadow/outline scaling
     const outlineScale = Math.max(textSettings.fontSize / 32, 1);
-    const scaledOutlineWidth = Math.ceil(textSettings.outlineWidth * outlineScale);
-    
-    const baseStyle = {
+    const scaledWidth = Math.ceil(textSettings.outlineWidth * outlineScale);
+
+    const base = {
       position: 'absolute',
-      width: '80%',
+      width: '90%',
       left: '50%',
       transform: 'translateX(-50%)',
-      margin: '15px 0',
-      padding: '0 5px',
+      padding: '0 8px',
       color: 'white',
       fontFamily: textSettings.font,
       fontSize: `${textSettings.fontSize}px`,
@@ -21,48 +19,41 @@ export default function MemeDisplay({ imageUrl, topText, bottomText, textSetting
       opacity: textSettings.opacity,
       textTransform: textSettings.isAllCaps ? 'uppercase' : 'none',
       fontWeight: textSettings.isBold ? '700' : '400',
-      ...(position === 'top' ? { top: 0 } : { bottom: 0 })
+      lineHeight: 1.1,
+      ...(position === 'top' ? { top: 8 } : { bottom: 8 })
     };
 
     if (textSettings.textStyle === 'shadow') {
-      const shadowBlur = 4;
-      const shadowColor = 'rgba(0, 0, 0, 0.7)';
-      const shadowSize = Math.max(2, scaledOutlineWidth);
-      
-      baseStyle.textShadow = `
-        ${shadowSize}px ${shadowSize}px ${shadowBlur}px ${shadowColor},
-        ${-shadowSize}px ${shadowSize}px ${shadowBlur}px ${shadowColor},
-        ${shadowSize}px ${-shadowSize}px ${shadowBlur}px ${shadowColor},
-        ${-shadowSize}px ${-shadowSize}px ${shadowBlur}px ${shadowColor}
-      `;
+      const s = Math.max(2, scaledWidth);
+      base.textShadow = `${s}px ${s}px 4px rgba(0,0,0,.8), ${-s}px ${s}px 4px rgba(0,0,0,.8), ${s}px ${-s}px 4px rgba(0,0,0,.8), ${-s}px ${-s}px 4px rgba(0,0,0,.8)`;
     } else if (textSettings.textStyle === 'outline') {
-      const outlineShadows = [];
-      
-      for (let x = -scaledOutlineWidth; x <= scaledOutlineWidth; x++) {
-        for (let y = -scaledOutlineWidth; y <= scaledOutlineWidth; y++) {
+      const shadows = [];
+      for (let x = -scaledWidth; x <= scaledWidth; x++) {
+        for (let y = -scaledWidth; y <= scaledWidth; y++) {
           if (x === 0 && y === 0) continue;
-          if (Math.abs(x) === scaledOutlineWidth || Math.abs(y) === scaledOutlineWidth) {
-            outlineShadows.push(`${x}px ${y}px 0 #000`);
-          }
+          if (Math.abs(x) === scaledWidth || Math.abs(y) === scaledWidth)
+            shadows.push(`${x}px ${y}px 0 #000`);
         }
       }
-      
-      baseStyle.textShadow = outlineShadows.join(', ');
+      base.textShadow = shadows.join(', ');
     }
-
-    return baseStyle;
+    return base;
   };
 
   return (
-    <div className="meme-container">
-      <div className="meme">
-        <img src={imageUrl} className="meme--image" alt="Meme" />
-        <h2 style={getTextStyle('top')}>{topText}</h2>
-        <h2 style={getTextStyle('bottom')}>{bottomText}</h2>
+    <div className="canvas-area">
+      <div className="canvas-inner">
+        <div className="canvas-label">
+          <span className="canvas-dot" />
+          Live Preview
+        </div>
+
+        <div className="meme-frame">
+          <img src={imageUrl} className="meme--image" alt="meme" />
+          <h2 className="meme--text top" style={getTextStyle('top')}>{topText}</h2>
+          <h2 className="meme--text bottom" style={getTextStyle('bottom')}>{bottomText}</h2>
+        </div>
       </div>
-      <button className="form--button newMemeBtn" onClick={onNewImage}>
-        Get a random meme image ➔
-      </button>
     </div>
   );
 }
